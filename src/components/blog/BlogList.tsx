@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Blog {
@@ -30,19 +30,7 @@ export default function BlogList() {
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBlogId > 0) {
-      fetchArticles();
-    } else {
-      setArticles([]);
-    }
-  }, [selectedBlogId]);
-
-  const fetchBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/blogs');
@@ -61,9 +49,9 @@ export default function BlogList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     if (!selectedBlogId) return;
     
     try {
@@ -79,7 +67,19 @@ export default function BlogList() {
     } finally {
       setLoadingArticles(false);
     }
-  };
+  }, [selectedBlogId]);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
+
+  useEffect(() => {
+    if (selectedBlogId > 0) {
+      fetchArticles();
+    } else {
+      setArticles([]);
+    }
+  }, [selectedBlogId, fetchArticles]);
 
   const handleDeleteArticle = async (articleId: number) => {
     if (!confirm('Are you sure you want to delete this article? This action cannot be undone.')) {

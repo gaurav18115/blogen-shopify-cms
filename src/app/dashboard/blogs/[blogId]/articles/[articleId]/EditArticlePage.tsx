@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User } from '@/lib/types';
 import BlogForm from '@/components/blog/BlogForm';
 
@@ -25,11 +25,7 @@ export default function EditArticlePage({ user, blogId, articleId }: EditArticle
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchArticle();
-  }, [blogId, articleId]);
-
-  const fetchArticle = async () => {
+  const fetchArticle = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -61,7 +57,11 @@ export default function EditArticlePage({ user, blogId, articleId }: EditArticle
     } finally {
       setLoading(false);
     }
-  };
+  }, [blogId, articleId]);
+
+  useEffect(() => {
+    fetchArticle();
+  }, [fetchArticle]);
 
   if (loading) {
     return (
@@ -222,7 +222,7 @@ export default function EditArticlePage({ user, blogId, articleId }: EditArticle
       {/* Main content */}
       <main className="py-6">
         <BlogForm 
-          initialArticle={article}
+          initialArticle={article || undefined}
           blogId={blogId}
           articleId={articleId}
           isEditing={true}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Blog {
@@ -46,12 +46,7 @@ export default function BlogForm({
     published: initialArticle?.published || false,
   });
 
-  // Fetch blogs on component mount
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  const fetchBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     try {
       setLoadingBlogs(true);
       const response = await fetch('/api/blogs');
@@ -70,7 +65,12 @@ export default function BlogForm({
     } finally {
       setLoadingBlogs(false);
     }
-  };
+  }, [selectedBlogId]);
+
+  // Fetch blogs on component mount
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
