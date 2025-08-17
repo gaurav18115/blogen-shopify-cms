@@ -9,6 +9,7 @@ Blogen Shopify CMS is a modern, full-stack content management system that enable
 ## 🏗️ Architecture & Technology Stack
 
 ### Frontend
+
 - **Next.js 14+** - React framework with App Router
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first CSS framework
@@ -18,6 +19,7 @@ Blogen Shopify CMS is a modern, full-stack content management system that enable
 - **Framer Motion** - Animation library
 
 ### Backend
+
 - **Supabase** - Backend-as-a-Service
   - PostgreSQL database
   - Authentication & authorization
@@ -26,6 +28,7 @@ Blogen Shopify CMS is a modern, full-stack content management system that enable
   - Edge functions
 
 ### Integrations
+
 - **Shopify Admin API** - Store integration
 - **Shopify Storefront API** - Frontend data access
 - **Webhooks** - Real-time synchronization
@@ -113,12 +116,14 @@ create table public.shopify_stores (
 ## 🔐 Authentication & Authorization
 
 ### Authentication Methods
+
 - Email/Password authentication
 - OAuth providers (Google, GitHub)
 - Magic link authentication
 - JWT-based session management
 
 ### Role-Based Access Control
+
 - **Super Admin**: Full system access
 - **Admin**: Store management, user management
 - **Editor**: Content creation and editing
@@ -126,6 +131,7 @@ create table public.shopify_stores (
 - **Viewer**: Read-only access
 
 ### Row Level Security Policies
+
 ```sql
 -- Users can only view their own profile
 create policy "Users can view own profile" on profiles
@@ -146,12 +152,14 @@ create policy "Admins can manage all posts" on posts
 ## 🔄 Shopify Integration
 
 ### API Integration
+
 - **Admin API 2024-01** - Store management
 - **Storefront API** - Public data access
 - **Webhook endpoints** - Real-time updates
 - **OAuth 2.0** - Secure authentication
 
 ### Supported Operations
+
 - Blog creation and management
 - Article publishing and updating
 - Image upload to Shopify
@@ -160,6 +168,7 @@ create policy "Admins can manage all posts" on posts
 - Category/tag synchronization
 
 ### Webhook Events
+
 - `blogs/create` - Blog creation
 - `blogs/update` - Blog updates
 - `blogs/delete` - Blog deletion
@@ -170,6 +179,7 @@ create policy "Admins can manage all posts" on posts
 ## 📝 Content Management Features
 
 ### Rich Text Editor
+
 - **TipTap** or **Lexical** based editor
 - Block-style editing
 - Markdown support
@@ -179,6 +189,7 @@ create policy "Admins can manage all posts" on posts
 - Table support
 
 ### Content Workflow
+
 1. **Draft Creation** - Initial content creation
 2. **Review Process** - Editorial review (optional)
 3. **SEO Optimization** - Meta tags, descriptions
@@ -187,6 +198,7 @@ create policy "Admins can manage all posts" on posts
 6. **Shopify Sync** - Automatic synchronization
 
 ### Media Management
+
 - Drag & drop file upload
 - Image optimization and resizing
 - CDN integration via Supabase Storage
@@ -196,6 +208,7 @@ create policy "Admins can manage all posts" on posts
 ## 🎨 User Interface & Experience
 
 ### Design System
+
 - Consistent color palette
 - Typography scale
 - Component library
@@ -204,6 +217,7 @@ create policy "Admins can manage all posts" on posts
 - Dark/light mode support
 
 ### Key Interfaces
+
 - **Dashboard** - Overview and analytics
 - **Post Editor** - Content creation interface
 - **Media Library** - Asset management
@@ -214,6 +228,7 @@ create policy "Admins can manage all posts" on posts
 ## 🔧 Development Setup
 
 ### Prerequisites
+
 ```bash
 Node.js 18+
 npm or yarn
@@ -222,6 +237,7 @@ Git
 ```
 
 ### Environment Variables
+
 ```env
 # Next.js
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -241,6 +257,7 @@ NEXT_PUBLIC_CDN_URL=your_cdn_url
 ```
 
 ### Installation & Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/gaurav18115/blogen-shopify-cms.git
@@ -261,12 +278,14 @@ npm run dev
 ## 🚀 Deployment
 
 ### Production Deployment
+
 - **Vercel** (recommended for Next.js)
 - **Netlify** alternative
 - **Railway** for full-stack deployment
 - **Docker** containerization support
 
 ### CI/CD Pipeline
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to Production
@@ -288,12 +307,14 @@ jobs:
 ## 📊 Monitoring & Analytics
 
 ### Performance Monitoring
+
 - Vercel Analytics
 - Core Web Vitals tracking
 - Error boundary implementation
 - Performance budgets
 
 ### Business Analytics
+
 - Post engagement metrics
 - User activity tracking
 - Content performance analysis
@@ -302,6 +323,7 @@ jobs:
 ## 🔒 Security Considerations
 
 ### Data Protection
+
 - End-to-end encryption for sensitive data
 - Secure token storage
 - HTTPS enforcement
@@ -309,6 +331,7 @@ jobs:
 - Rate limiting
 
 ### Compliance
+
 - GDPR compliance measures
 - Data retention policies
 - User consent management
@@ -317,6 +340,7 @@ jobs:
 ## 📋 Testing Strategy
 
 ### Testing Types
+
 - Unit tests (Jest + Testing Library)
 - Integration tests (Cypress)
 - E2E tests (Playwright)
@@ -324,6 +348,7 @@ jobs:
 - Performance tests (Lighthouse CI)
 
 ### Quality Assurance
+
 - TypeScript strict mode
 - ESLint + Prettier
 - Husky pre-commit hooks
@@ -333,7 +358,8 @@ jobs:
 ## 📚 API Documentation
 
 ### REST Endpoints
-```
+
+```http
 GET    /api/posts              # List posts
 POST   /api/posts              # Create post
 GET    /api/posts/:id          # Get post
@@ -350,6 +376,7 @@ POST   /api/webhooks/shopify   # Shopify webhooks
 ```
 
 ### GraphQL Queries
+
 ```graphql
 query GetPosts($limit: Int, $offset: Int) {
   posts(limit: $limit, offset: $offset) {
@@ -379,6 +406,7 @@ mutation CreatePost($input: PostInput!) {
 ## 🛣️ Roadmap
 
 ### Phase 1 - Core CMS (MVP)
+
 - [ ] User authentication
 - [ ] Basic post creation/editing
 - [ ] Shopify integration
@@ -386,6 +414,7 @@ mutation CreatePost($input: PostInput!) {
 - [ ] Publishing workflow
 
 ### Phase 2 - Enhanced Features
+
 - [ ] Advanced rich text editor
 - [ ] SEO optimization tools
 - [ ] Content scheduling
@@ -393,6 +422,7 @@ mutation CreatePost($input: PostInput!) {
 - [ ] Analytics dashboard
 
 ### Phase 3 - Advanced Capabilities
+
 - [ ] Multi-language support
 - [ ] Advanced workflow management
 - [ ] Custom fields and templates
@@ -404,6 +434,7 @@ mutation CreatePost($input: PostInput!) {
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### Development Workflow
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -417,9 +448,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 For support and questions:
+
 - Create an issue on GitHub
 - Join our Discord community
-- Email: support@blogen-cms.com
+- Email: [support@blogen-cms.com](mailto:support@blogen-cms.com)
 
 ## 🙏 Acknowledgments
 

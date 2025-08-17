@@ -50,7 +50,7 @@ export const emailConfig = {
 
 // Create nodemailer transporter for SMTP
 export const createTransporter = () => {
-  return nodemailer.createTransporter(emailConfig.smtp);
+  return nodemailer.createTransport(emailConfig.smtp);
 };
 
 // Email sending interface
@@ -81,7 +81,7 @@ export async function sendEmail(options: EmailOptions) {
     return { success: true, messageId: result.messageId };
   } catch (error) {
     console.error('Failed to send email:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -265,10 +265,12 @@ export const validateEmailConfig = () => {
   return true;
 };
 
-export default {
+const emailService = {
   config: emailConfig,
   sendEmail,
   BrevoApiClient,
   utils: emailUtils,
   validateConfig: validateEmailConfig,
 };
+
+export default emailService;
