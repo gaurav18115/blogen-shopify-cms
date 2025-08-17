@@ -13,14 +13,21 @@
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
+    "@shopify/app-bridge": "^3.7.10",
+    "@shopify/shopify-api": "^11.14.1",
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/auth-helpers-react": "^0.4.2",
     "@supabase/supabase-js": "^2.38.4",
     "@types/nodemailer": "^7.0.0",
-    "next": "14.0.3",
+    "iron-session": "^8.0.4",
+    "jose": "^6.0.12",
+    "next": "^14.2.31",
     "nodemailer": "^7.0.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.62.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",
