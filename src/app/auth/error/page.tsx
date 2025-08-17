@@ -2,8 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-export default function AuthErrorPage() {
+function ErrorContent() {
   const searchParams = useSearchParams();
   const message = searchParams.get('message') || 'An authentication error occurred';
 
@@ -74,7 +75,7 @@ export default function AuthErrorPage() {
           >
             Try Again
           </Link>
-          
+
           <Link
             href="/"
             className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -103,7 +104,7 @@ export default function AuthErrorPage() {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-blue-800">
-                  <strong>Need help?</strong> Make sure your store domain is correct (e.g., "my-store" for my-store.myshopify.com)
+                  <strong>Need help?</strong> Make sure your store domain is correct (e.g., &quot;my-store&quot; for my-store.myshopify.com)
                 </p>
               </div>
             </div>
@@ -111,5 +112,13 @@ export default function AuthErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ErrorContent />
+    </Suspense>
   );
 }

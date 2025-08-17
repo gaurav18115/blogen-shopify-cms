@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { shopify, getStoreInfo, getUserInfo, createShopifySession } from '@/lib/shopify';
+import { getStoreInfo, getUserInfo, createShopifySession } from '@/lib/shopify';
 import { supabase } from '@/lib/supabase';
 import { setUserSession } from '@/lib/session';
 import { User, ShopifyAuthSession } from '@/lib/types';
@@ -27,28 +27,35 @@ export async function GET(request: NextRequest) {
 
   try {
     // Exchange authorization code for access token
-    const callback = await shopify.auth.callback({
-      rawRequest: request as any,
-      rawResponse: new Response() as any,
+    const tokenResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: process.env.SHOPIFY_APP_KEY,
+        client_secret: process.env.SHOPIFY_APP_SECRET,
+        code,
+      }),
     });
 
-    if (!callback.session) {
-      throw new Error('No session received from callback');
+    if (!tokenResponse.ok) {
+      throw new Error('Failed to exchange authorization code for access token');
     }
 
-    const session = callback.session;
+    const { access_token: accessToken, scope } = await tokenResponse.json();
 
-    if (!session.accessToken) {
+    if (!accessToken) {
       throw new Error('No access token received');
     }
 
     // Create Shopify session for API calls
     const shopifySession = createShopifySession({
-      shop: session.shop,
-      accessToken: session.accessToken,
-      scope: session.scope || '',
-      expires: session.expires,
-      onlineAccessInfo: session.onlineAccessInfo,
+      shop,
+      accessToken,
+      scope,
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+      onlineAccessInfo: undefined,
     });
 
     // Get store and user information
@@ -64,7 +71,7 @@ export async function GET(request: NextRequest) {
       full_name: `${userInfo.first_name} ${userInfo.last_name}`.trim(),
       shopify_store_url: shop,
       shopify_store_name: storeInfo.name,
-      shopify_access_token: session.accessToken, // This should be encrypted in production
+      shopify_access_token: accessToken, // This should be encrypted in production
       role: userInfo.account_owner ? 'store_owner' : 'store_staff',
     };
 
@@ -109,14 +116,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Set session
-    await setUserSession(user, session.accessToken, shop);
+    await setUserSession(user, accessToken, shop);
 
     // Redirect to dashboard
     const response = NextResponse.redirect(new URL('/dashboard', request.url));
-    
+
     // Clear OAuth state cookie
     response.cookies.delete('oauth_state');
-    
+
     return response;
   } catch (error) {
     console.error('OAuth callback error:', error);

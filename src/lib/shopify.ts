@@ -1,30 +1,10 @@
-import { shopifyApi, LATEST_API_VERSION, Session } from '@shopify/shopify-api';
+import { Session } from '@shopify/shopify-api';
 import { ShopifyAuthSession } from './types';
-
-// Shopify API configuration
-export const shopify = shopifyApi({
-  apiKey: process.env.SHOPIFY_APP_KEY!,
-  apiSecretKey: process.env.SHOPIFY_APP_SECRET!,
-  scopes: (process.env.SHOPIFY_SCOPES || 'read_content,write_content').split(','),
-  hostName: process.env.SHOPIFY_APP_URL?.replace(/https?:\/\//, '') || 'localhost:3000',
-  apiVersion: LATEST_API_VERSION,
-  isEmbeddedApp: false, // Set to true if you want embedded app
-  userAgentPrefix: 'Blogen-Shopify-CMS',
-});
 
 /**
  * Create OAuth authorization URL
  */
 export function createOAuthUrl(shop: string, state: string): string {
-  const authRoute = shopify.auth.begin({
-    shop,
-    callbackPath: '/api/auth/shopify/callback',
-    isOnline: true, // Use online tokens for user-specific access
-    rawRequest: undefined as any,
-    rawResponse: undefined as any,
-  });
-
-  // Manually construct the URL since we need to handle state parameter
   const params = new URLSearchParams({
     client_id: process.env.SHOPIFY_APP_KEY!,
     scope: (process.env.SHOPIFY_SCOPES || 'read_content,write_content'),
@@ -41,10 +21,10 @@ export function createOAuthUrl(shop: string, state: string): string {
  */
 export function isValidShopDomain(shop: string): boolean {
   if (!shop) return false;
-  
+
   // Remove protocol if present
   shop = shop.replace(/^https?:\/\//, '');
-  
+
   // Check if it's a valid Shopify domain
   const shopifyDomainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\.myshopify\.com$/;
   return shopifyDomainRegex.test(shop);
@@ -55,15 +35,15 @@ export function isValidShopDomain(shop: string): boolean {
  */
 export function normalizeShopDomain(shop: string): string {
   if (!shop) return '';
-  
+
   // Remove protocol and trailing slash
   shop = shop.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  
+
   // Add .myshopify.com if not present
   if (!shop.includes('.myshopify.com')) {
     shop = `${shop}.myshopify.com`;
   }
-  
+
   return shop;
 }
 
@@ -75,7 +55,7 @@ export function verifyHmac(data: string, signature: string): boolean {
   const hmac = crypto.createHmac('sha256', process.env.SHOPIFY_APP_SECRET!);
   hmac.update(data, 'utf8');
   const hash = hmac.digest('base64');
-  
+
   return crypto.timingSafeEqual(
     Buffer.from(signature, 'base64'),
     Buffer.from(hash, 'base64')
@@ -102,36 +82,22 @@ export function createShopifySession(authData: ShopifyAuthSession): Session {
  * Get store information
  */
 export async function getStoreInfo(session: Session) {
-  const client = new shopify.clients.Graphql({ session });
-  
-  const query = `
-    query {
-      shop {
-        id
-        name
-        email
-        domain
-        myshopifyDomain
-        currencyCode
-        timezone
-        plan {
-          displayName
-        }
-      }
-    }
-  `;
-  
-  try {
-    const response = await client.query({ data: query });
-    const body = response.body as any;
-    if (body && body.data) {
-      return body.data.shop;
-    }
-    throw new Error('Invalid response from Shopify API');
-  } catch (error) {
-    console.error('Error fetching store info:', error);
-    throw error;
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
   }
+
+  const response = await fetch(`https://${session.shop}/admin/api/2024-01/shop.json`, {
+    headers: {
+      'X-Shopify-Access-Token': session.accessToken,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch store info: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.shop;
 }
 
 /**
@@ -141,6 +107,192 @@ export async function getUserInfo(session: Session) {
   if (!session.onlineAccessInfo) {
     throw new Error('Online access token required for user information');
   }
-  
+
   return session.onlineAccessInfo.associated_user;
+}
+
+/**
+ * Get all blogs from Shopify store
+ */
+export async function getBlogs(session: Session) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(`https://${session.shop}/admin/api/2024-01/blogs.json`, {
+    headers: {
+      'X-Shopify-Access-Token': session.accessToken,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch blogs: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.blogs;
+}
+
+/**
+ * Get articles from a specific blog
+ */
+export async function getBlogArticles(session: Session, blogId: number, limit = 50) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(
+    `https://${session.shop}/admin/api/2024-01/blogs/${blogId}/articles.json?limit=${limit}`,
+    {
+      headers: {
+        'X-Shopify-Access-Token': session.accessToken,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch blog articles: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.articles;
+}
+
+/**
+ * Create a new blog article
+ */
+export async function createBlogArticle(
+  session: Session,
+  blogId: number,
+  article: {
+    title: string;
+    body_html: string;
+    author?: string;
+    tags?: string;
+    summary?: string;
+    published?: boolean;
+  }
+) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(
+    `https://${session.shop}/admin/api/2024-01/blogs/${blogId}/articles.json`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Shopify-Access-Token': session.accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ article }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Failed to create article: ${errorData.errors || response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.article;
+}
+
+/**
+ * Update an existing blog article
+ */
+export async function updateBlogArticle(
+  session: Session,
+  blogId: number,
+  articleId: number,
+  article: {
+    title?: string;
+    body_html?: string;
+    author?: string;
+    tags?: string;
+    summary?: string;
+    published?: boolean;
+  }
+) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(
+    `https://${session.shop}/admin/api/2024-01/blogs/${blogId}/articles/${articleId}.json`,
+    {
+      method: 'PUT',
+      headers: {
+        'X-Shopify-Access-Token': session.accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ article }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Failed to update article: ${errorData.errors || response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.article;
+}
+
+/**
+ * Delete a blog article
+ */
+export async function deleteBlogArticle(
+  session: Session,
+  blogId: number,
+  articleId: number
+) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(
+    `https://${session.shop}/admin/api/2024-01/blogs/${blogId}/articles/${articleId}.json`,
+    {
+      method: 'DELETE',
+      headers: {
+        'X-Shopify-Access-Token': session.accessToken,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete article: ${response.statusText}`);
+  }
+
+  return true;
+}
+
+/**
+ * Get a specific blog article
+ */
+export async function getBlogArticle(
+  session: Session,
+  blogId: number,
+  articleId: number
+) {
+  if (!session.accessToken) {
+    throw new Error('Access token is required');
+  }
+
+  const response = await fetch(
+    `https://${session.shop}/admin/api/2024-01/blogs/${blogId}/articles/${articleId}.json`,
+    {
+      headers: {
+        'X-Shopify-Access-Token': session.accessToken,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch article: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.article;
 }

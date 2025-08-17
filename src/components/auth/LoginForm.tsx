@@ -10,13 +10,13 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!shop.trim()) {
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       await login(shop);
     } catch (error) {
@@ -62,7 +62,7 @@ export default function LoginForm() {
             Enter your store domain to get started with Blogen CMS
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="shop" className="sr-only">
@@ -182,7 +182,7 @@ export default function LoginForm() {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-blue-800">
-                  <strong>New to Shopify?</strong> You'll need a Shopify store to use this CMS.{' '}
+                  <strong>New to Shopify?</strong> You&apos;ll need a Shopify store to use this CMS.{' '}
                   <a
                     href="https://www.shopify.com"
                     target="_blank"
