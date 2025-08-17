@@ -50,6 +50,39 @@ AI_MAX_TOKENS=4000
 AI_TEMPERATURE=0.7
 ```
 
+### Email Services - Brevo (SendinBlue)
+
+```bash
+# SMTP Configuration for transactional emails
+# Get from: https://app.brevo.com/settings/keys/api
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=your_brevo_smtp_login  # Format: xxxxxxx@smtp-brevo.com
+SMTP_PASS=your_brevo_smtp_key    # Format: xsmtpsib-xxxxxx...
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME=Blogen Shopify CMS
+
+# Brevo API for campaigns and advanced features
+BREVO_API_KEY=your_encoded_brevo_api_key  # Base64 encoded API key
+BREVO_API_URL=https://api.brevo.com/v3
+
+# Email template configuration
+# Create templates in Brevo dashboard and set their IDs here
+EMAIL_VERIFICATION_TEMPLATE_ID=1
+PASSWORD_RESET_TEMPLATE_ID=2
+WELCOME_EMAIL_TEMPLATE_ID=3
+BLOG_NOTIFICATION_TEMPLATE_ID=4
+
+# Contact lists for newsletters and campaigns
+NEWS_LETTER_LIST_ID=2
+USER_NOTIFICATIONS_LIST_ID=7
+
+# Email sending limits and configuration
+EMAIL_DAILY_LIMIT=300
+EMAIL_RATE_LIMIT=100
+EMAIL_RETRY_ATTEMPTS=3
+```
+
 ### Authentication & Security
 
 ```bash
@@ -69,11 +102,24 @@ RATE_LIMIT_WINDOW=60000
 ### External Services
 
 ```bash
-# Email Service (Optional)
-SMTP_HOST=smtp.gmail.com
+# Email Service - Brevo (SendinBlue)
+# Get credentials from: https://app.brevo.com/settings/keys/api
+SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+SMTP_USER=your_brevo_smtp_login
+SMTP_PASS=your_brevo_smtp_key
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME=Your App Name
+
+# Brevo API for advanced email features
+BREVO_API_KEY=your_brevo_api_key
+BREVO_API_URL=https://api.brevo.com/v3
+
+# Email template IDs (create in Brevo dashboard)
+EMAIL_VERIFICATION_TEMPLATE_ID=1
+PASSWORD_RESET_TEMPLATE_ID=2
+WELCOME_EMAIL_TEMPLATE_ID=3
+NEWS_LETTER_LIST_ID=2
 
 # Analytics & Monitoring
 VERCEL_ANALYTICS_ID=your_analytics_id
@@ -82,6 +128,18 @@ SENTRY_DSN=https://...@sentry.io/...
 # CDN & Storage
 CDN_URL=https://your-cdn-domain.com
 UPLOAD_MAX_SIZE=10485760
+```
+
+## 📦 Required Dependencies
+
+To use the Brevo email functionality, install the required packages:
+
+```bash
+# Install email dependencies
+npm install nodemailer @types/nodemailer
+
+# Optional: Install Brevo SDK for advanced features
+npm install sib-api-v3-sdk
 ```
 
 ## 🔧 Environment File Templates
@@ -176,6 +234,15 @@ vercel env add SUPABASE_SERVICE_ROLE_KEY
 vercel env add SHOPIFY_APP_KEY
 vercel env add OPENAI_API_KEY
 vercel env add NEXTAUTH_SECRET
+
+# Add Brevo email configuration
+vercel env add SMTP_HOST
+vercel env add SMTP_PORT
+vercel env add SMTP_USER
+vercel env add SMTP_PASS
+vercel env add BREVO_API_KEY
+vercel env add FROM_EMAIL
+vercel env add FROM_NAME
 
 # Or via dashboard at https://vercel.com/mindweave/blogen-shopify-cms/settings/environment-variables
 
