@@ -1,10 +1,13 @@
 export interface User {
   id: string
+  shopify_user_id: number
   email: string
   full_name?: string
   avatar_url?: string
-  shopify_store_url?: string
-  role: 'super_admin' | 'admin' | 'editor' | 'contributor' | 'viewer'
+  shopify_store_url: string
+  shopify_store_name?: string
+  shopify_access_token?: string // This will be encrypted
+  role: 'store_owner' | 'store_admin' | 'store_staff'
   created_at: string
   updated_at: string
 }
@@ -62,4 +65,32 @@ export interface ShopifyStore {
   webhook_verified: boolean
   created_at: string
   updated_at: string
+}
+
+export interface ShopifyAuthSession {
+  shop: string
+  accessToken: string
+  scope: string
+  expires?: Date
+  onlineAccessInfo?: {
+    expires_in: number
+    associated_user_scope: string
+    associated_user: {
+      id: number
+      first_name: string
+      last_name: string
+      email: string
+      account_owner: boolean
+      locale: string
+      collaborator: boolean
+    }
+  }
+}
+
+export interface ShopifyOAuthParams {
+  shop: string
+  code: string
+  state: string
+  timestamp: string
+  hmac: string
 }
